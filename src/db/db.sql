@@ -18,9 +18,9 @@ create table parents
     id             int unique references accounts (id),
     parent_name    varchar(255) not null,
     phone          varchar(25)  not null,
-    address        varchar(25)  not null,
-    avatar         varchar(25),
-    emergecy_phone varchar(25)  not null
+    address        varchar(255)  not null,
+    avatar         varchar(255),
+    emergecy_phone varchar(255)  not null
 );
 
 create table sitters
@@ -28,16 +28,16 @@ create table sitters
     id            int unique references accounts (id),
     sitter_name   varchar(255) not null,
     phone         varchar(25)  not null,
-    address       varchar(25)  not null,
+    address       varchar(255)  not null,
     sex           gender       not null,
-    avatar        varchar(25),
+    avatar        varchar(255),
     certification text         not null,
     year_ex       int          not null,
     hourly_salary money        not null,
     state         status       not null,
     rate          float,
     food          text         not null,
-    language      text         not null
+    language      text         not null,
 );
 
 create table feedback

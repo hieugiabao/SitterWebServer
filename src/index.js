@@ -1,13 +1,19 @@
-const express = require('express');
-const index = express();
-const route = require('./routes');
+const express = require("express");
+const app = express();
+const route = require("./routes");
+const port = 5000;
 
-const cors = require('cors')
+const cors = require("cors");
 
-index.use(cors()) // Use this after the variable declaration
-index.use(express.urlencoded({extended: true}));
-index.use(express.json());
-route(index);
+app.use(cors()); // Use this after the variable declaration
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+route(app);
 
+app.get("/", (req, res) => {
+  res.send("<h1>Hello World</h1>");
+});
 
-index.listen(3000);
+app.listen(port, () => {
+  console.log(`server running on port: http://localhost:${port}`);
+});
