@@ -57,15 +57,15 @@ const searchSitters = async (req, res) => {
     // Khoảng số năm kinh nghiệm
     // Khoảng rating
     if (minYearEx && maxYearEx) {
-      criteria.rate = {
+      criteria.year_ex = {
         [Op.between]: [minYearEx, maxYearEx],
       };
     } else if (minYearEx) {
-      criteria.rate = {
+      criteria.year_ex = {
         [Op.gte]: minYearEx,
       };
     } else if (maxYearEx) {
-      criteria.rate = {
+      criteria.year_ex = {
         [Op.lte]: maxYearEx,
       };
     }
