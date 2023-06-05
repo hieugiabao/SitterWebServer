@@ -1,5 +1,5 @@
 const { Op } = require("sequelize");
-const Sitter = require("../models/sitter.js");
+const Sitter = require("../models/sitter");
 
 const searchSitters = async (req, res) => {
   try {
