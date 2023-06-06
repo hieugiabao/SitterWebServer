@@ -7,7 +7,7 @@ const cors = require("cors");
 
 app.use(
   cors({
-    origin: "*",
+    origin: process.env.CLIENT_URL,
   })
 ); // Use this after the variable declaration
 app.use(express.urlencoded({ extended: true }));
