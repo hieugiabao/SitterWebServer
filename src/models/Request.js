@@ -1,8 +1,8 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../db");
-const Parent = require("./parent");
-const Sitter = require("./sitter");
-const Feedback = require("./feedback");
+const Parent = require("./Parent");
+const Sitter = require("./Sitter");
+const Feedback = require("./Feedback");
 
 const Request = sequelize.define(
   "Request",

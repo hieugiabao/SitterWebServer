@@ -1,6 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../db");
-const Account = require("./account");
+// const Account = require("./Account");
 
 const gender = ["male", "female"];
 const status = ["accepted", "not accept"];
