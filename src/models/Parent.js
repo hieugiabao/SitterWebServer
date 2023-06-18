@@ -1,6 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../db");
-const Account = require("./account");
+const Account = require("./Account");
 
 const Parent = sequelize.define(
   "Parent",

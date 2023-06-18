@@ -1,4 +1,5 @@
 const { Sequelize, DataTypes } = require("sequelize");
+const pg = require("pg");
 require("dotenv").config();
 // Khởi tạo kết nối Sequelize đến cơ sở dữ liệu
 const sequelize = new Sequelize(
@@ -9,6 +10,7 @@ const sequelize = new Sequelize(
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
     dialect: "postgres",
+    dialectModule: pg,
   }
 );
 
