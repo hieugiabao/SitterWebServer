@@ -37,7 +37,7 @@ create table sitters
     state         status       not null,
     rate          float,
     food          text         not null,
-    language      text         not null,
+    language      text         not null
 );
 
 create table feedback
