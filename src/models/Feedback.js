@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../db");
-const Parent = require("./parent");
-const Sitter = require("./sitter");
+const Parent = require("./Parent");
+const Sitter = require("./Sitter");
 
 const star = ["1", "2", "3", "4", "5"];
 
