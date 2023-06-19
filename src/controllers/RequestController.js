@@ -1,4 +1,6 @@
+const Parent = require("../models/Parent");
 const Request = require("../models/Request");
+const Sitter = require("../models/Sitter");
 
 const allRequests = async (req, res) => {
   try {
@@ -19,7 +21,14 @@ const findRequestById = async (req, res) => {
     if (!request) {
       res.status(404).json({ error: "Request not found" });
     } else {
-      res.json(request);
+      const sitter = await Sitter.findByPk(request.sitter_id);
+      const parent = await Parent.findByPk(request.parent_id);
+      const response = {
+        ...request.dataValues,
+        sitter,
+        parent,
+      };
+      res.json(response);
     }
   } catch (error) {
     console.log("Error searching requests:", error);
