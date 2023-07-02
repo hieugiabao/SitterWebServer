@@ -1,7 +1,6 @@
 const Parent = require("../models/Parent");
 const Request = require("../models/Request");
 const Sitter = require("../models/Sitter");
-const Account = require("../models/Account");
 
 const allRequests = async (req, res) => {
     try {
@@ -10,6 +9,7 @@ const allRequests = async (req, res) => {
     } catch (error) {
         console.log("Error searching requests:", error);
         // throw error;
+        res.status(500).json({error: 'Internal server error'});
     }
 };
 
@@ -56,6 +56,7 @@ const createRequest = async (req, res) => {
     } catch (error) {
         console.log("Error searching requests:", error);
         // throw error;
+        res.status(500).json({error: 'Internal server error'});
     }
 };
 
@@ -86,6 +87,7 @@ const updateRequest = async (req, res) => {
     } catch (error) {
         console.log("Error updating request:", error);
         // throw error;
+        res.status(500).json({error: 'Internal server error'});
     }
 };
 
@@ -105,104 +107,78 @@ const deleteRequest = async (req, res) => {
     } catch (error) {
         console.log("Error deleting request:", error);
         // throw error;
+        res.status(500).json({error: 'Internal server error'});
     }
 };
 
 const sitterRequestList = async (req, res) => {
     try {
-        const account = await Account.findOne({where: {id: req.userData.id}});
-        if (!account) {
-            res.status(401).json({message: 'Unauthorized'});
-        }
-        if (account.role !== 'sitter') {
-            res.status(403).json({message: 'Forbidden'});
-            console.log('Forbidden');
-        } else {
-            Request.belongsTo(Parent, {foreignKey: 'parent_id', as: 'parent'});
-            const requests = await Request.findAll({
-                where: {sitter_id: req.userData.id},
-                attributes: ['id', 'created_at', 'state'],
-                include: [
-                    {
-                        model: Parent,
-                        as: 'parent',
-                        attributes: ['parent_name']
-                    }
-                ]
-            });
-            res.status(200).json(requests);
-        }
+        Request.belongsTo(Parent, {foreignKey: 'parent_id', as: 'parent'});
+        const requests = await Request.findAll({
+            where: {sitter_id: req.sitter.id},
+            attributes: ['id', 'created_at', 'state'],
+            include: [
+                {
+                    model: Parent,
+                    as: 'parent',
+                    attributes: ['parent_name']
+                }
+            ]
+        });
+        res.status(200).json(requests);
 
     } catch (error) {
         console.log("Error searching sitters:", error);
-        throw error;
+        // throw error;
+        res.status(500).json({message: 'Internal server error'});
     }
 }
 
 const sitterUpdateState = async (req, res) => {
     try {
-        const account = await Account.findOne({where: {id: req.userData.id}});
-        if (!account) {
-            res.status(401).json({message: 'Unauthorized'});
-        } else if (account.role !== 'sitter') {
-            res.status(403).json({message: 'Forbidden'});
-            console.log('Forbidden');
-        } else {
-            const {requestId} = req.params;
-            const {state} = req.body;
-            const existingRequest = await Request.findByPk(requestId);
-            if (!existingRequest) {
-                return res.status(404).json({error: "Request not found"});
-            }
-            if (existingRequest.sitter_id !== req.userData.id) {
-                return res.status(403).json({error: "Forbidden"});
-            }
-            existingRequest.state = state;
-            await existingRequest.save();
-            res.status(200).json(existingRequest);
+        const {requestId} = req.params;
+        const {state} = req.body;
+        const existingRequest = await Request.findByPk(requestId);
+        if (!existingRequest) {
+            return res.status(404).json({error: "Request not found"});
         }
+        if (existingRequest.sitter_id !== req.sitter.id) {
+            return res.status(403).json({error: "Forbidden"});
+        }
+        existingRequest.state = state;
+        await existingRequest.save();
+        res.status(200).json(existingRequest);
     } catch (error) {
         console.log("Error updating request:", error);
         // throw error;
+        res.status(500).json({message: 'Internal server error'});
     }
 }
 
 const parentRequestList = async (req, res) => {
     try {
-        const account = await Account.findOne({where: {id: req.userData.id}});
-        if (!account) {
-            res.status(401).json({message: 'Unauthorized'});
-        } else if (account.role !== 'parent') {
-            res.status(403).json({message: 'Forbidden'});
-        } else {
-            Request.belongsTo(Sitter, {foreignKey: 'sitter_id', as: 'sitter'});
-            const requests = await Request.findAll({
-                where: {parent_id: req.userData.id},
-                attributes: ['id', 'created_at', 'state'],
-                include: [
-                    {
-                        model: Sitter,
-                        as: 'sitter',
-                        attributes: ['sitter_name']
-                    }
-                ]
-            });
-            res.status(200).json(requests);
-        }
+        Request.belongsTo(Sitter, {foreignKey: 'sitter_id', as: 'sitter'});
+        const requests = await Request.findAll({
+            where: {parent_id: req.userData.id},
+            attributes: ['id', 'created_at', 'state'],
+            include: [
+                {
+                    model: Sitter,
+                    as: 'sitter',
+                    attributes: ['sitter_name']
+                }
+            ]
+        });
+        res.status(200).json(requests);
     } catch (error) {
         console.log("Error searching parents:", error);
-        throw error;
+        // throw error;
+        res.status(500).json({message: 'Internal server error'});
     }
 }
 
 const parentUpdateState = async (req, res) => {
     try {
-        const account = await Account.findOne({where: {id: req.userData.id}});
-        if (!account) {
-            res.status(401).json({message: 'Unauthorized'});
-        } else if (account.role !== 'parent') {
-            res.status(403).json({message: 'Forbidden'});
-        } else {
             const {requestId} = req.params;
             const {state} = req.body;
             const existingRequest = await Request.findByPk(requestId);
@@ -215,10 +191,10 @@ const parentUpdateState = async (req, res) => {
             existingRequest.state = state;
             await existingRequest.save();
             res.status(200).json(existingRequest);
-        }
     } catch (error) {
         console.log("Error updating request:", error);
         // throw error;
+        res.status(500).json({message: 'Internal server error'});
     }
 }
 

@@ -36,6 +36,18 @@ const Account = sequelize.define(
   },
   {
     timestamps: false,
+    defaultScope: {
+      attributes: {
+        exclude: ["password"],
+      }
+    },
+    scopes: {
+      withPassword: {
+        attributes: {
+          include: ["password"],
+        }
+      }
+    }
   }
 );
 
