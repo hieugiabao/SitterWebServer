@@ -21,15 +21,15 @@ const signIn = async (req, res) => {
     try {
         const account = await Account.findOne({where: {user_name}});
         if (!account) {
-            res.status(400).json({message: 'Username or password is incorrect'});
+            res.status(401).json({message: 'Username or password is incorrect'});
         }
         if (account.password !== password) {
-            res.status(400).json({message: 'Username or password is incorrect'});
+            res.status(401).json({message: 'Username or password is incorrect'});
         } else {
             const token = await jwt.sign(
                 {id: account.id, user_name: user_name},
                 process.env.SECRET_KEY, {
-                    expiresIn: '1h'
+                    // expiresIn: '1h'
                 })
             res.status(200)
                 .header('Authorization', `Bearer ${token}`)

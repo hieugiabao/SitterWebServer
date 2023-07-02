@@ -1,116 +1,235 @@
 const Parent = require("../models/Parent");
 const Request = require("../models/Request");
 const Sitter = require("../models/Sitter");
+const Account = require("../models/Account");
 
 const allRequests = async (req, res) => {
-  try {
-    const requests = await Request.findAll();
-    res.json(requests);
-  } catch (error) {
-    console.log("Error searching requests:", error);
-    // throw error;
-  }
+    try {
+        const requests = await Request.findAll();
+        res.json(requests);
+    } catch (error) {
+        console.log("Error searching requests:", error);
+        // throw error;
+    }
 };
 
 const findRequestById = async (req, res) => {
-  try {
-    const { requestId } = req.params; // Lấy id từ request parameters
+    try {
+        const {requestId} = req.params; // Lấy id từ request parameters
 
-    const request = await Request.findByPk(requestId); // Tìm request theo id
+        const request = await Request.findByPk(requestId); // Tìm request theo id
 
-    if (!request) {
-      res.status(404).json({ error: "Request not found" });
-    } else {
-      const sitter = await Sitter.findByPk(request.sitter_id);
-      const parent = await Parent.findByPk(request.parent_id);
-      const response = {
-        ...request.dataValues,
-        sitter,
-        parent,
-      };
-      res.json(response);
+        if (!request) {
+            res.status(404).json({error: "Request not found"});
+        } else {
+            const sitter = await Sitter.findByPk(request.sitter_id);
+            const parent = await Parent.findByPk(request.parent_id);
+            const response = {
+                ...request.dataValues,
+                sitter,
+                parent,
+            };
+            res.json(response);
+        }
+    } catch (error) {
+        console.log("Error searching requests:", error);
+        // throw error;
     }
-  } catch (error) {
-    console.log("Error searching requests:", error);
-    // throw error;
-  }
 };
 
 const createRequest = async (req, res) => {
-  try {
-    const { start_time, end_time, data, state, parent_id, sitter_id } =
-      req.body;
+    try {
+        const {start_time, end_time, data, state, parent_id, sitter_id} =
+            req.body;
 
-    // Tạo request mới
-    const newRequest = await Request.create({
-      start_time,
-      end_time,
-      data,
-      state,
-      parent_id,
-      sitter_id,
-    });
+        // Tạo request mới
+        const newRequest = await Request.create({
+            start_time,
+            end_time,
+            data,
+            state,
+            parent_id,
+            sitter_id,
+        });
 
-    res.status(201).json(newRequest);
-  } catch (error) {
-    console.log("Error searching requests:", error);
-    // throw error;
-  }
+        res.status(201).json(newRequest);
+    } catch (error) {
+        console.log("Error searching requests:", error);
+        // throw error;
+    }
 };
 
 const updateRequest = async (req, res) => {
-  try {
-    const { requestId } = req.params;
-    const { start_time, end_time, data, state } = req.body;
+    try {
+        const {requestId} = req.params;
+        const {start_time, end_time, data, state} = req.body;
 
-    const existingRequest = await Request.findByPk(requestId);
-    if (!existingRequest) {
-      return res.status(404).json({ error: "Request not found" });
+        const existingRequest = await Request.findByPk(requestId);
+        if (!existingRequest) {
+            return res.status(404).json({error: "Request not found"});
+        }
+
+        // Cập nhật thông tin của request
+        existingRequest.start_time = !start_time
+            ? existingRequest.start_time
+            : start_time;
+
+        existingRequest.end_time = !end_time ? existingRequest.end_time : end_time;
+
+        existingRequest.data = !data ? existingRequest.data : data;
+
+        existingRequest.state = !state ? existingRequest.state : state;
+
+        await existingRequest.save();
+
+        res.status(200).json(existingRequest);
+    } catch (error) {
+        console.log("Error updating request:", error);
+        // throw error;
     }
-
-    // Cập nhật thông tin của request
-    existingRequest.start_time = !start_time
-      ? existingRequest.start_time
-      : start_time;
-
-    existingRequest.end_time = !end_time ? existingRequest.end_time : end_time;
-
-    existingRequest.data = !data ? existingRequest.data : data;
-
-    existingRequest.state = !state ? existingRequest.state : state;
-
-    await existingRequest.save();
-
-    res.status(200).json(existingRequest);
-  } catch (error) {
-    console.log("Error updating request:", error);
-    // throw error;
-  }
 };
 
 const deleteRequest = async (req, res) => {
-  try {
-    const { requestId } = req.params;
+    try {
+        const {requestId} = req.params;
 
-    const existingRequest = await Request.findByPk(requestId);
-    if (!existingRequest) {
-      return res.status(404).json({ error: "Request not found" });
+        const existingRequest = await Request.findByPk(requestId);
+        if (!existingRequest) {
+            return res.status(404).json({error: "Request not found"});
+        }
+
+        // Xóa request
+        await existingRequest.destroy();
+
+        res.status(200).json({message: "Request deleted successfully"});
+    } catch (error) {
+        console.log("Error deleting request:", error);
+        // throw error;
     }
-
-    // Xóa request
-    await existingRequest.destroy();
-
-    res.status(200).json({ message: "Request deleted successfully" });
-  } catch (error) {
-    console.log("Error deleting request:", error);
-    // throw error;
-  }
 };
 
+const sitterRequestList = async (req, res) => {
+    try {
+        const account = await Account.findOne({where: {id: req.userData.id}});
+        if (!account) {
+            res.status(401).json({message: 'Unauthorized'});
+        }
+        if (account.role !== 'sitter') {
+            res.status(403).json({message: 'Forbidden'});
+            console.log('Forbidden');
+        } else {
+            Request.belongsTo(Parent, {foreignKey: 'parent_id', as: 'parent'});
+            const requests = await Request.findAll({
+                where: {sitter_id: req.userData.id},
+                attributes: ['id', 'created_at', 'state'],
+                include: [
+                    {
+                        model: Parent,
+                        as: 'parent',
+                        attributes: ['parent_name']
+                    }
+                ]
+            });
+            res.status(200).json(requests);
+        }
+
+    } catch (error) {
+        console.log("Error searching sitters:", error);
+        throw error;
+    }
+}
+
+const sitterUpdateState = async (req, res) => {
+    try {
+        const account = await Account.findOne({where: {id: req.userData.id}});
+        if (!account) {
+            res.status(401).json({message: 'Unauthorized'});
+        } else if (account.role !== 'sitter') {
+            res.status(403).json({message: 'Forbidden'});
+            console.log('Forbidden');
+        } else {
+            const {requestId} = req.params;
+            const {state} = req.body;
+            const existingRequest = await Request.findByPk(requestId);
+            if (!existingRequest) {
+                return res.status(404).json({error: "Request not found"});
+            }
+            if (existingRequest.sitter_id !== req.userData.id) {
+                return res.status(403).json({error: "Forbidden"});
+            }
+            existingRequest.state = state;
+            await existingRequest.save();
+            res.status(200).json(existingRequest);
+        }
+    } catch (error) {
+        console.log("Error updating request:", error);
+        // throw error;
+    }
+}
+
+const parentRequestList = async (req, res) => {
+    try {
+        const account = await Account.findOne({where: {id: req.userData.id}});
+        if (!account) {
+            res.status(401).json({message: 'Unauthorized'});
+        } else if (account.role !== 'parent') {
+            res.status(403).json({message: 'Forbidden'});
+        } else {
+            Request.belongsTo(Sitter, {foreignKey: 'sitter_id', as: 'sitter'});
+            const requests = await Request.findAll({
+                where: {parent_id: req.userData.id},
+                attributes: ['id', 'created_at', 'state'],
+                include: [
+                    {
+                        model: Sitter,
+                        as: 'sitter',
+                        attributes: ['sitter_name']
+                    }
+                ]
+            });
+            res.status(200).json(requests);
+        }
+    } catch (error) {
+        console.log("Error searching parents:", error);
+        throw error;
+    }
+}
+
+const parentUpdateState = async (req, res) => {
+    try {
+        const account = await Account.findOne({where: {id: req.userData.id}});
+        if (!account) {
+            res.status(401).json({message: 'Unauthorized'});
+        } else if (account.role !== 'parent') {
+            res.status(403).json({message: 'Forbidden'});
+        } else {
+            const {requestId} = req.params;
+            const {state} = req.body;
+            const existingRequest = await Request.findByPk(requestId);
+            if (!existingRequest) {
+                return res.status(404).json({error: "Request not found"});
+            }
+            if (existingRequest.parent_id !== req.userData.id) {
+                return res.status(403).json({error: "Forbidden"});
+            }
+            existingRequest.state = state;
+            await existingRequest.save();
+            res.status(200).json(existingRequest);
+        }
+    } catch (error) {
+        console.log("Error updating request:", error);
+        // throw error;
+    }
+}
+
 module.exports = {
-  findRequestById,
-  allRequests,
-  createRequest,
-  updateRequest,
-  deleteRequest,
+    findRequestById,
+    allRequests,
+    createRequest,
+    updateRequest,
+    deleteRequest,
+    sitterRequestList,
+    parentRequestList,
+    sitterUpdateState,
+    parentUpdateState
 };
