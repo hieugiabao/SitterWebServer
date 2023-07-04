@@ -23,10 +23,10 @@ const signIn = async (req, res) => {
     try {
         const account = await Account.scope('withPassword').findOne({where: {user_name}});
         if (!account) {
-            res.status(401).json({message: 'Username or password is incorrect'});
+            return res.status(401).json({message: 'Username or password is incorrect'});
         }
         if (account.password !== password) {
-            res.status(401).json({message: 'Username or password is incorrect'});
+            return res.status(401).json({message: 'Username or password is incorrect'});
         } else {
             const token = jwt.sign(
                 {id: account.id, user_name: user_name},
@@ -36,7 +36,7 @@ const signIn = async (req, res) => {
             // res.status(200)
             //     .header('Authorization', `Bearer ${token}`)
             //     .status(200).json(account);
-            res
+            return res
               .status(200)
               .json({
                 token,
@@ -46,7 +46,7 @@ const signIn = async (req, res) => {
               });
         }
     } catch (error) {
-        res.status(500).json({message: error.message});
+        return res.status(500).json({message: error.message});
     }
 }
 
