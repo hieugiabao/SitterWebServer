@@ -113,10 +113,10 @@ const deleteRequest = async (req, res) => {
 
 const sitterRequestList = async (req, res) => {
     try {
-        Request.belongsTo(Parent, {foreignKey: 'parent_id', as: 'parent'});
+        // Request.belongsTo(Parent, {foreignKey: 'parent_id', as: 'parent'});
         const requests = await Request.findAll({
             where: {sitter_id: req.sitter.id},
-            attributes: ['id', 'created_at', 'state'],
+            attributes: ['id', 'start_time', 'end_time', 'state'],
             include: [
                 {
                     model: Parent,
@@ -157,10 +157,10 @@ const sitterUpdateState = async (req, res) => {
 
 const parentRequestList = async (req, res) => {
     try {
-        Request.belongsTo(Sitter, {foreignKey: 'sitter_id', as: 'sitter'});
+        // Request.belongsTo(Sitter, {foreignKey: 'sitter_id', as: 'sitter'});
         const requests = await Request.findAll({
             where: {parent_id: req.userData.id},
-            attributes: ['id', 'created_at', 'state'],
+            attributes: ['id', 'start_time', 'end_time', 'state'],
             include: [
                 {
                     model: Sitter,

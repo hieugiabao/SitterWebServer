@@ -42,8 +42,8 @@ const Request = sequelize.define(
   }
 );
 
-Request.belongsTo(Parent, { foreignKey: "parent_id" });
-Request.belongsTo(Sitter, { foreignKey: "sitter_id" });
+Request.belongsTo(Parent, { foreignKey: "parent_id", as: "parent" });
+Request.belongsTo(Sitter, { foreignKey: "sitter_id", as: "sitter" });
 Request.belongsTo(Feedback, { foreignKey: "feedback_id" });
 
 module.exports = Request;

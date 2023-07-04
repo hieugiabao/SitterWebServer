@@ -11,7 +11,7 @@ module.exports = async (req, res, next) => {
       return res.status(404).json({ message: "Parent not found" });
     }
     req.parent = parent;
-    next();
+    return next();
   } catch (error) {
     return res.status(500).json({ message: "Internal server error" });
   }
