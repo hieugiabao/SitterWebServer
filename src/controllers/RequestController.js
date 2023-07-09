@@ -39,7 +39,7 @@ const findRequestById = async (req, res) => {
 
 const createRequest = async (req, res) => {
     try {
-        const {start_time, end_time, data, sitter_id} =
+        const {start_time, end_time, data, sitter_id, address} =
             req.body;
 
         // Tạo request mới
@@ -47,6 +47,7 @@ const createRequest = async (req, res) => {
             start_time,
             end_time,
             data,
+            address,
             state: "wait",
             parent_id: req.userData.id,
             sitter_id,

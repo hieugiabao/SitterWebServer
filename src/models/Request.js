@@ -20,6 +20,9 @@ const Request = sequelize.define(
       type: DataTypes.DATE,
       allowNull: false,
     },
+    address: {
+      type: DataTypes.STRING(255),
+    },
     data: {
       type: DataTypes.TEXT,
       allowNull: false,
