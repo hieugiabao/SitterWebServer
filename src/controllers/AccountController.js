@@ -71,8 +71,6 @@ const parentUpdateInfo = async (req, res) => {
             const newParent = await Parent.create({
                 ...req.body,
                 id: req.userData.id,
-                // use default avatar
-                avatar: "https://i.imgur.com/3GvwE0f.png",
                 state: "accepted",
                 rate: 0,
             });
@@ -99,8 +97,6 @@ const sitterUpdateInfo = async (req, res) => {
             const newSitter = await Sitter.create({
                 ...req.body,
                 id: req.userData.id,
-                // use default avatar
-                avatar: "https://i.imgur.com/3GvwE0f.png",
                 state: "accepted",
                 rate: 0,
                 address: 'None'
